@@ -44,6 +44,8 @@ module RecurringSelect
 
     params[:interval] = params[:interval].to_i if params[:interval]
     params[:week_start] = params[:week_start].to_i if params[:week_start]
+    params[:count] = params[:count].to_i if params[:count]
+    params[:until] = Date.strptime(params[:until], "%Y-%m-%d") if params[:until]
 
     params[:validations] ||= {}
     params[:validations].symbolize_keys!

@@ -20,6 +20,7 @@ window.RecurringSelectDialog =
       @positionDialogVert(true)
       @mainEventInit()
       @freqInit()
+      @endInit()
       @summaryInit()
       @freq_select.focus()
       @outer_holder.trigger "recurring_select:dialog_opened"
@@ -137,6 +138,10 @@ window.RecurringSelectDialog =
       interval_input.on "change keyup", @intervalChanged
       section.show()
 
+    endInit: ->
+      section = @content.find('.ending_options')
+      section.find("input[name=endson]").on "change", @endChanged
+      section.find("input[type=text]").on "blur", @endInputChanged
 
     summaryInit: ->
       @summary = @outer_holder.find(".rs_summary")
@@ -248,11 +253,15 @@ window.RecurringSelectDialog =
 
       @current_rule.hash ||= {}
       @current_rule.hash.interval = 1
-      @current_rule.hash.until = null
-      @current_rule.hash.count = null
+      #@current_rule.hash.until = null
+      #@current_rule.hash.count = null
       @current_rule.hash.validations = null
-      @content.find(".freq_option_section").hide();
-      @content.find("input[type=radio], input[type=checkbox]").prop("checked", false)
+
+      @content.find(".freq_option_section")
+        .hide()
+        .find("input[type=radio], input[type=checkbox]")
+          .prop("checked", false)
+
       switch @freq_select.val()
         when "Weekly"
           @current_rule.hash.rule_type = "IceCube::WeeklyRule"
@@ -279,7 +288,6 @@ window.RecurringSelectDialog =
       @current_rule.hash.interval = parseInt($(event.currentTarget).val())
       if @current_rule.hash.interval < 1 || isNaN(@current_rule.hash.interval)
         @current_rule.hash.interval = 1
-        # $(event.currentTarget).val(@current_rule.hash.interval)
       @summaryUpdate()
 
     daysChanged: (event) =>
@@ -320,6 +328,33 @@ window.RecurringSelectDialog =
       @summaryUpdate()
       false
 
+    endChanged: (event) =>
+      @content.find(".ending_options input[type=text]")
+        .val("")
+        .prop("disabled", true)
+
+      id = $(event.currentTarget).attr("id")
+      @content.find("label[for=#{id}] input").prop("disabled", false)
+
+      @current_rule.hash.count = null
+      @current_rule.hash.until = null
+
+      @summaryFetch()
+      false
+
+    endInputChanged: (event) =>
+      input = $(event.currentTarget)
+      id = input.attr("id")
+
+      if /until/.test(id)
+        @current_rule.hash ||= {}
+        @current_rule.hash.until = input.val()
+      else if /count/.test(id)
+        @current_rule.hash ||= {}
+        @current_rule.hash.count = input.val()
+      @summaryFetch()
+      false
+
 # ========================= Change callbacks ===============================
 
     template: () ->
@@ -333,7 +368,7 @@ window.RecurringSelectDialog =
               <tbody>
                 <tr>
                   <th>
-                    <label for='rs_frequency'>#{$.fn.recurring_select.texts["frequency"]}:</label>
+                    #{$.fn.recurring_select.texts["frequency"]}:
                   </th>
                   <td>
                     <select id='rs_frequency' class='rs_frequency' name='rs_frequency'>
@@ -416,14 +451,14 @@ window.RecurringSelectDialog =
                   </th>
                   <td>
                     <span class='ending_never'>
-                      <input id='endson_never' type='radio' name='endson'/>
+                      <input id='endson_never' type='radio' checked name='endson'/>
                       <label for='endson_never'>Never</label>
                     </span>
                     <span class='ending_count'>
                       <input id='endson_count' type='radio' name='endson'/>
                       <label for='endson_count'>
                         After
-                        <input id='endson_count_value' type='input' size='3'/>
+                        <input id='endson_count_value' type='text' disabled size='3'/>
                         Shows
                       </label>
                     </span>
@@ -431,7 +466,7 @@ window.RecurringSelectDialog =
                       <input id='endson_until' type='radio' name='endson'/>
                       <label for='endson_until'>
                         On
-                        <input id='endson_until_value' type='input' size='10'/>
+                        <input id='endson_until_value' type='text' disabled size='10'/>
                       </label>
                     </span>
                   </td>

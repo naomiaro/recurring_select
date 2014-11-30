@@ -10,6 +10,7 @@ class RecurringSelectMiddleware
     if env["PATH_INFO"] =~ /^\/recurring_select\/translate/
       request = Rack::Request.new(env)
       params = request.params
+
       params.symbolize_keys!
 
       if params and params[:rule_type]
