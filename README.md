@@ -112,7 +112,6 @@ $.fn.recurring_select.texts = {
   weeks_on: "week(s) on"
   months: "month(s)"
   years: "year(s)"
-  first_day_of_week: 1
   day_of_month: "Day of month"
   day_of_week: "Day of week"
   cancel: "Cancel"
@@ -126,6 +125,7 @@ Options include:
 
 ```coffeescript
 $.fn.recurring_select.options = {
+  first_day_of_week: 1
   monthly: {
     show_week: [true, true, true, true, false, false] //display week 1, 2 .... Last
   }
