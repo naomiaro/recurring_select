@@ -175,38 +175,65 @@ window.RecurringSelectDialog =
 
     init_calendar_days: (section) =>
       monthly_calendar = section.find(".rs_calendar_day")
-      monthly_calendar.html ""
+
+      fragment = $(document.createDocumentFragment())
+      fragment.append "<th></th>"
+      td = $(document.createElement("td"))
+      span = $(document.createElement("span"))
+
+      validations = @current_rule.hash.validations.day_of_month
+
       for num in [1..31]
-        monthly_calendar.append (day_link = $(document.createElement("a")).text(num))
-        if $.inArray(num, @current_rule.hash.validations.day_of_month) != -1
+        day_link = $("<a>", {text: num})
+        span.append day_link
+        if $.inArray(num, validations) != -1
           day_link.addClass("selected")
 
       # add last day of month button
-      monthly_calendar.append (end_of_month_link = $(document.createElement("a")).text($.fn.recurring_select.texts["last_day"]))
-      end_of_month_link.addClass("end_of_month")
-      if $.inArray(-1, @current_rule.hash.validations.day_of_month) != -1
+      end_of_month_link = $(document.createElement("a"))
+        .text($.fn.recurring_select.texts["last_day"])
+        .addClass("end_of_month")
+
+      if $.inArray(-1, validations) != -1
         end_of_month_link.addClass("selected")
 
+      span.append end_of_month_link
+      td.append span
+      fragment.append td
+
+      monthly_calendar.html fragment
       monthly_calendar.find("a").on "click tap", @dateOfMonthChanged
 
     init_calendar_weeks: (section) =>
       monthly_calendar = section.find(".rs_calendar_week")
-      monthly_calendar.html ""
+
+      fragment = $(document.createDocumentFragment())
+      fragment.append "<th></th>"
+      td = $(document.createElement("td"))
+      span = $(document.createElement("span"))
+
       row_labels = $.fn.recurring_select.texts["order"]
       show_row = $.fn.recurring_select.options["monthly"]["show_week"]
       cell_str = $.fn.recurring_select.texts["days_first_letter"]
 
       for num, index in [1, 2, 3, 4, 5, -1]
         if show_row[index]
-          monthly_calendar.append "<span>#{row_labels[index]}</span>"
+          span.append "<span>#{row_labels[index]}</span>"
           for day_of_week in [0..6]
             day_link = $("<a>", {text: cell_str[day_of_week]})
             day_link.attr("day", day_of_week)
             day_link.attr("instance", num)
-            monthly_calendar.append day_link
-      $.each @current_rule.hash.validations.day_of_week, (key, value) ->
+            span.append day_link
+
+      td.append span
+      fragment.append td
+
+      validations = @current_rule.hash.validations.day_of_week
+      $.each validations, (key, value) ->
         $.each value, (index, instance) ->
-          section.find("a[day='#{key}'][instance='#{instance}']").addClass("selected")
+          td.find("a[day='#{key}'][instance='#{instance}']").addClass("selected")
+
+      monthly_calendar.html fragment
       monthly_calendar.find("a").on "click tap", @weekOfMonthChanged
 
     toggle_month_view: =>
@@ -301,62 +328,119 @@ window.RecurringSelectDialog =
         <div class='rs_dialog'>
           <div class='rs_dialog_content'>
             <h1>#{$.fn.recurring_select.texts["repeat"]} <a href='#' title='#{$.fn.recurring_select.texts["cancel"]}' Alt='#{$.fn.recurring_select.texts["cancel"]}'></a> </h1>
-            <p>
-              <label for='rs_frequency'>#{$.fn.recurring_select.texts["frequency"]}:</label>
-              <select id='rs_frequency' class='rs_frequency' name='rs_frequency'>
-                <option value='Daily'>#{$.fn.recurring_select.texts["daily"]}</option>
-                <option value='Weekly'>#{$.fn.recurring_select.texts["weekly"]}</option>
-                <option value='Monthly'>#{$.fn.recurring_select.texts["monthly"]}</option>
-                <option value='Yearly'>#{$.fn.recurring_select.texts["yearly"]}</option>
-              </select>
-            </p>
 
-            <div class='daily_options freq_option_section'>
-              <p>
-                #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_daily_interval' class='rs_daily_interval rs_interval' value='1' size='2' />
-                #{$.fn.recurring_select.texts["days"]}
-              </p>
-            </div>
-            <div class='weekly_options freq_option_section'>
-              <p>
-                #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_weekly_interval' class='rs_weekly_interval rs_interval' value='1' size='2' />
-                #{$.fn.recurring_select.texts["weeks_on"]}:
-              </p>
-              <div class='day_holder'>
+            <table>
+              <tbody>
+                <tr>
+                  <th>
+                    <label for='rs_frequency'>#{$.fn.recurring_select.texts["frequency"]}:</label>
+                  </th>
+                  <td>
+                    <select id='rs_frequency' class='rs_frequency' name='rs_frequency'>
+                      <option value='Daily'>#{$.fn.recurring_select.texts["daily"]}</option>
+                      <option value='Weekly'>#{$.fn.recurring_select.texts["weekly"]}</option>
+                      <option value='Monthly'>#{$.fn.recurring_select.texts["monthly"]}</option>
+                      <option value='Yearly'>#{$.fn.recurring_select.texts["yearly"]}</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+
+              <tbody class='daily_options freq_option_section'>
+                <tr>
+                  <th>
+                    #{$.fn.recurring_select.texts["every"]}
+                  </th>
+                  <td>
+                    <input type='text' name='rs_daily_interval' class='rs_daily_interval rs_interval' value='1' size='2' />
+                    #{$.fn.recurring_select.texts["days"]}
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class='weekly_options freq_option_section'>
+                <tr>
+                  <th>
+                    #{$.fn.recurring_select.texts["every"]}
+                  </th>
+                  <td>
+                    <input type='text' name='rs_weekly_interval' class='rs_weekly_interval rs_interval' value='1' size='2' />
+                    #{$.fn.recurring_select.texts["weeks_on"]}:
+                  </td>
+                <tr class='day_holder'>
+                  <th>#{$.fn.recurring_select.texts["week_repeat"]}</th>
+                  <td>
       "
-      for day_of_week in [$.fn.recurring_select.texts["first_day_of_week"]...(7 + $.fn.recurring_select.texts["first_day_of_week"])]
+      first_day_of_week = $.fn.recurring_select.options["first_day_of_week"]
+      for day_of_week in [first_day_of_week...(7 + first_day_of_week)]
         day_of_week = day_of_week % 7
         str += "<a href='#' data-value='#{day_of_week}'>#{$.fn.recurring_select.texts["days_first_letter"][day_of_week]}</a>"
-
       str += "
-              </div>
-              <span style='clear:both; visibility:hidden; height:1px;'>.</span>
-            </div>
-            <div class='monthly_options freq_option_section'>
-              <p>
-                #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_monthly_interval' class='rs_monthly_interval rs_interval' value='1' size='2' />
-                #{$.fn.recurring_select.texts["months"]}:
-              </p>
-              <p class='monthly_rule_type'>
-                <span>#{$.fn.recurring_select.texts["day_of_month"]} <input type='radio' class='monthly_rule_type_day' name='monthly_rule_type' value='true' /></span>
-                <span>#{$.fn.recurring_select.texts["day_of_week"]} <input type='radio' class='monthly_rule_type_week' name='monthly_rule_type' value='true' /></span>
-              </p>
-              <p class='rs_calendar_day'></p>
-              <p class='rs_calendar_week'></p>
-            </div>
-            <div class='yearly_options freq_option_section'>
-              <p>
-                #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_yearly_interval' class='rs_yearly_interval rs_interval' value='1' size='2' />
-                #{$.fn.recurring_select.texts["years"]}
-              </p>
-            </div>
-            <p class='rs_summary'>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class='monthly_options freq_option_section'>
+                <tr>
+                  <th>
+                    #{$.fn.recurring_select.texts["every"]}
+                  </th>
+                  <td>
+                    <input type='text' name='rs_monthly_interval' class='rs_monthly_interval rs_interval' value='1' size='2' />
+                    #{$.fn.recurring_select.texts["months"]}:
+                  </td>
+                </tr>
+                <tr class='monthly_rule_type'>
+                  <th>#{$.fn.recurring_select.texts["month_repeat"]}</th>
+                  <td>
+                    <span>#{$.fn.recurring_select.texts["day_of_month"]} <input type='radio' class='monthly_rule_type_day' name='monthly_rule_type' value='true' /></span>
+                    <span>#{$.fn.recurring_select.texts["day_of_week"]} <input type='radio' class='monthly_rule_type_week' name='monthly_rule_type' value='true' /></span>
+                  </td>
+                </tr>
+                <tr class='rs_calendar_day'></tr>
+                <tr class='rs_calendar_week'></tr>
+              </tbody>
+              <tbody class='yearly_options freq_option_section'>
+                <tr>
+                  <th>
+                    #{$.fn.recurring_select.texts["every"]}
+                  </th>
+                  <td>
+                    <input type='text' name='rs_yearly_interval' class='rs_yearly_interval rs_interval' value='1' size='2' />
+                    #{$.fn.recurring_select.texts["years"]}
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class='ending_options'>
+                <tr>
+                  <th>
+                    #{$.fn.recurring_select.texts["ends"]}
+                  </th>
+                  <td>
+                    <span class='ending_never'>
+                      <input id='endson_never' type='radio' name='endson'/>
+                      <label for='endson_never'>Never</label>
+                    </span>
+                    <span class='ending_count'>
+                      <input id='endson_count' type='radio' name='endson'/>
+                      <label for='endson_count'>
+                        After
+                        <input id='endson_count_value' type='input' size='3'/>
+                        Shows
+                      </label>
+                    </span>
+                    <span class='ending_until'>
+                      <input id='endson_until' type='radio' name='endson'/>
+                      <label for='endson_until'>
+                        On
+                        <input id='endson_until_value' type='input' size='10'/>
+                      </label>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class='rs_summary'>
               <span></span>
-            </p>
+            </div>
             <div class='controls'>
               <input type='button' class='rs_save' value='#{$.fn.recurring_select.texts["ok"]}' />
               <input type='button' class='rs_cancel' value='#{$.fn.recurring_select.texts["cancel"]}' />

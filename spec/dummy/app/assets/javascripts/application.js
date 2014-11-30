@@ -8,9 +8,3 @@
 //= require jquery_ujs
 //= require recurring_select
 //= require_tree .
-
-$.fn.recurring_select.options = {
-  monthly: {
-    show_week: [true, true, true, true, true, true]
-  }
-};
