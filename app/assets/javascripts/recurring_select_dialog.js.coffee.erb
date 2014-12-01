@@ -351,7 +351,9 @@ window.RecurringSelectDialog =
         .prop("disabled", true)
 
       id = $(event.currentTarget).attr("id")
-      @content.find("label[for=#{id}] input").prop("disabled", false)
+      @content.find("label[for=#{id}] input")
+        .prop("disabled", false)
+        .focus()
 
       @current_rule.hash.count = null
       @current_rule.hash.until = null
