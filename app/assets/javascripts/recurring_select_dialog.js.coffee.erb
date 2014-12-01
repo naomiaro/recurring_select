@@ -5,8 +5,6 @@ window.RecurringSelectDialog =
       @initDialogBox()
       if not @current_rule.hash? or not @current_rule.hash.rule_type?
         @freqChanged()
-      else
-        setTimeout @positionDialogVert, 10 # allow initial render
 
     initDialogBox: ->
       $(".rs_dialog_holder").remove()
@@ -17,7 +15,7 @@ window.RecurringSelectDialog =
       @outer_holder = $(".rs_dialog_holder")
       @inner_holder = @outer_holder.find ".rs_dialog"
       @content = @outer_holder.find ".rs_dialog_content"
-      @positionDialogVert(true)
+      @positionDialogVert()
       @mainEventInit()
       @freqInit()
       @endInit()
@@ -25,7 +23,7 @@ window.RecurringSelectDialog =
       @freq_select.focus()
       @outer_holder.trigger "recurring_select:dialog_opened"
 
-    positionDialogVert: (initial_positioning) =>
+    positionDialogVert: () =>
       window_height = $(window).height()
       window_width  = $(window).width()
       dialog_height = @content.outerHeight()
@@ -33,23 +31,13 @@ window.RecurringSelectDialog =
         dialog_height = 80
       margin_top = (window_height - dialog_height)/2 - 30
       margin_top = 10 if margin_top < 10
-      # if dialog_height > window_height - 20
-      #   dialog_height = window_height - 20
 
       new_style_hash =
         "margin-top" : margin_top+"px"
         "min-height" : dialog_height+"px"
 
-      if initial_positioning?
-        @inner_holder.css new_style_hash
-        @inner_holder.trigger "recurring_select:dialog_positioned"
-      else
-        @content.css {"width": @content.width()+"px"}
-        @inner_holder.addClass "animated"
-        @inner_holder.animate new_style_hash, 200, =>
-          @inner_holder.removeClass "animated"
-          @content.css {"width": "auto"}
-          @inner_holder.trigger "recurring_select:dialog_positioned"
+      @inner_holder.css new_style_hash
+      @inner_holder.trigger "recurring_select:dialog_positioned"
 
     cancel: =>
       @outer_holder.remove()
