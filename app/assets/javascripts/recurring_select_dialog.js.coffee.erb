@@ -143,6 +143,23 @@ window.RecurringSelectDialog =
       section.find("input[name=endson]").on "change", @endChanged
       section.find("input[type=text]").on "blur", @endInputChanged
 
+      @current_rule.hash ||= {}
+      @current_rule.hash.count ||= null
+      @current_rule.hash.until ||= null
+
+      if @current_rule.hash.count?
+        @content.find('#endson_count_value')
+          .prop('disabled', false)
+          .val(@current_rule.hash.count)
+        @content.find("#endson_count")
+          .prop('checked', true)
+      else if @current_rule.hash.until?
+        @content.find('#endson_until_value')
+          .prop('disabled', false)
+          .val(@current_rule.hash.until)
+        @content.find("#endson_until")
+          .prop('checked', true)
+
     summaryInit: ->
       @summary = @outer_holder.find(".rs_summary")
       @summaryUpdate()
