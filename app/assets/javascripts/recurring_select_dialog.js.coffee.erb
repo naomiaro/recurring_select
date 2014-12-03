@@ -1,7 +1,11 @@
 window.RecurringSelectDialog =
   class RecurringSelectDialog
-    constructor: (@recurring_selector) ->
-      @current_rule = @recurring_selector.recurring_select('current_rule')
+    constructor: (@element) ->
+      @current_rule = {
+        str: @element.data 'rrule-string'
+        hash: @element.data 'rrule-hash'
+      }
+
       @initDialogBox()
       if not @current_rule.hash? or not @current_rule.hash.rule_type?
         @freqChanged()
@@ -41,7 +45,7 @@ window.RecurringSelectDialog =
 
     cancel: =>
       @outer_holder.remove()
-      @recurring_selector.recurring_select('cancel')
+      @element.recurring_select('cancel')
 
     outerCancel: (event) =>
       if $(event.target).hasClass("rs_dialog_holder")
@@ -50,7 +54,7 @@ window.RecurringSelectDialog =
     save: =>
       return if !@current_rule.str?
       @outer_holder.remove()
-      @recurring_selector.recurring_select('save', @current_rule)
+      @element.recurring_select('save', @current_rule)
 
 # ========================= Init Methods ===============================
 

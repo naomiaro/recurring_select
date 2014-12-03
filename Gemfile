@@ -10,5 +10,6 @@ gem "rails", "4.0.2"
 gem "sass-rails"
 
 group :development do
-  gem 'pry'
+  gem 'pry-rails'
+  gem 'pry-byebug'
 end
