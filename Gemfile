@@ -1,12 +1,10 @@
 source "https://rubygems.org"
 gemspec
 
-gem "pg", platform: :ruby
-gem "activerecord-jdbcpostgresql-adapter", platform: :jruby
-
+gem "sqlite3"
 gem "jquery-rails"
 
-gem "rails", "4.0.2"
+gem "rails", "4.1.8"
 gem "sass-rails"
 
 group :development do
